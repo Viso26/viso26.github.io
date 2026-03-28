@@ -82,7 +82,7 @@ function showRanking() {
 // ───── Écrans de jeu ─────
 function showNameScreen() {
   //elImage.removeAttribute('src');
-  elText.textContent = 'Devine l’image.';
+  //elText.textContent = 'Devine l’image';
   elProgress.textContent = 'Entre ton prénom';
   elFeedback.textContent = '';
   elScore.textContent = 'Score : 0';

@@ -17,3 +17,59 @@ button{border:0;border-radius:16px;padding:14px 16px;font-size:16px;font-weight:
 .good{color:#15803d}.bad{color:#b91c1c}
 .footer{opacity:.7;font-size:14px;text-align:center;margin-top:auto;padding:8px 0 2px}
 @media (max-width:420px){.choices{grid-template-columns:1fr}}
+
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-size: 16px;
+}
+
+th, td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  background: #f3f4f6;
+  font-weight: 700;
+  color: #111827;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+tr:hover {
+  background: #f9fafb;
+}
+
+tr:nth-child(1) td { background: #fef3c7; font-weight: bold; }
+tr:nth-child(2) td { background: #f0f9ff; }
+tr:nth-child(3) td { background: #f0fdf4; }
+
+.pos-badge {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 28px;
+  font-weight: bold;
+  color: white;
+  margin-right: 8px;
+}
+
+.pos-1 { background: #f59e0b; }
+.pos-2 { background: #0ea5e9; }
+.pos-3 { background: #10b981; }
+
+/* Amélioration des boutons multiples */
+.card .next {
+  margin-top: 8px;
+}
+
+@media (max-width: 420px) {
+  th, td { padding: 10px 6px; font-size: 15px; }
+}

@@ -13,16 +13,118 @@ const elNext = document.getElementById('nextBtn');
 const elProgress = document.getElementById('progress');
 const elScore = document.getElementById('scorePill');
 
+let playerName = '';
 let index = 0;
 let score = 0;
 let locked = false;
+const highScoresKey = 'image_quiz_scores';
+const totalQuestions = questions.length;
+
+// ───── Fonctions pour les scores ─────
+function loadScores() {
+  try {
+    const json = localStorage.getItem(highScoresKey);
+    return json ? JSON.parse(json) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveScore(name, score) {
+  const list = loadScores();
+  list.push({ name, score, date: new Date().toISOString() });
+  list.sort((a, b) => b.score - a.score);
+  const top10 = list.slice(0, 10);
+  localStorage.setItem(highScoresKey, JSON.stringify(top10));
+}
+
+function showRanking() {
+  const list = loadScores();
+  elChoices.innerHTML = '';
+  elFeedback.textContent = '';
+
+  if (list.length === 0) {
+    elFeedback.textContent = 'Aucun score enregistré.';
+    elFeedback.className = 'feedback';
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.style.width = '100%';
+  table.style.borderCollapse = 'collapse';
+  table.style.marginTop = '12px';
+
+  const thead = document.createElement('thead');
+  thead.innerHTML = `
+    <tr style="background:#e5e7eb">
+      <th style="padding:12px 8px;border-radius:8px;font-weight:700">Pos</th>
+      <th style="padding:12px 8px;border-radius:8px;font-weight:700">Prénom</th>
+      <th style="padding:12px 8px;border-radius:8px;font-weight:700">Score</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  list.forEach((entry, i) => {
+    const tr = document.createElement('tr');
+    tr.style.background = i < 3 ? '#fef3c7' : 'white';
+    tr.innerHTML = `
+      <td style="padding:12px 8px;text-align:center;font-weight:${i < 3 ? 'bold' : 'normal'}">${i + 1}</td>
+      <td style="padding:12px 8px">${entry.name}</td>
+      <td style="padding:12px 8px;text-align:center;font-weight:bold">${entry.score}/${totalQuestions}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  elChoices.appendChild(table);
+}
+
+// ───── Écrans de jeu ─────
+function showNameScreen() {
+  elImage.removeAttribute('src');
+  elText.textContent = 'Devine l’image';
+  elProgress.textContent = 'Entre ton prénom';
+  elFeedback.textContent = '';
+  elScore.textContent = 'Score : 0';
+  elChoices.innerHTML = '';
+  elNext.classList.add('hidden');
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Ton prénom/pseudo';
+  input.style.width = '100%';
+  input.style.padding = '16px';
+  input.style.border = '2px solid #e5e7eb';
+  input.style.borderRadius = '16px';
+  input.style.fontSize = '18px';
+  input.style.marginBottom = '12px';
+
+  const btnStart = document.createElement('button');
+  btnStart.className = 'next';
+  btnStart.textContent = 'Commencer !';
+  btnStart.onclick = () => {
+    playerName = input.value.trim() || 'Anonyme';
+    if (playerName === 'Anonyme') {
+      elFeedback.textContent = '⚠️ Donne un prénom pour être dans le classement !';
+      elFeedback.className = 'feedback bad';
+      return;
+    }
+    elScore.textContent = `Joueur : ${playerName}`;
+    index = 0;
+    score = 0;
+    render();
+  };
+
+  elChoices.appendChild(input);
+  elChoices.appendChild(btnStart);
+}
 
 function render() {
   locked = false;
   const q = questions[index];
   elImage.src = q.image;
   elText.textContent = q.text;
-  elProgress.textContent = `Question ${index + 1}/${questions.length}`;
+  elProgress.textContent = `Question ${index + 1}/${totalQuestions}`;
   elFeedback.textContent = '';
   elFeedback.className = 'feedback';
   elNext.classList.add('hidden');
@@ -44,11 +146,11 @@ function pick(choice, btn) {
   buttons.forEach(b => b.disabled = true);
   if (choice === q.answer) {
     score++;
-    elFeedback.textContent = 'Bonne réponse !';
+    elFeedback.textContent = '✅ Bonne réponse !';
     elFeedback.classList.add('good');
     btn.style.background = '#15803d';
   } else {
-    elFeedback.textContent = `Raté — c’était ${q.answer}.`;
+    elFeedback.textContent = `❌ Raté — c’était ${q.answer}.`;
     elFeedback.classList.add('bad');
     btn.style.background = '#b91c1c';
     buttons.find(b => b.textContent === q.answer)?.style.setProperty('background', '#15803d');
@@ -59,105 +161,32 @@ function pick(choice, btn) {
 
 elNext.addEventListener('click', () => {
   index++;
-  if (index >= questions.length) {
-    index++; // ou après le dernier render
-    elText.textContent = "Fin de la partie";
-    elImage.removeAttribute("src");
-    elChoices.innerHTML = "";
-    
-    // demande un pseudo
-    const name = prompt("Ton prénom/pseudo :", "Sans nom") || "Anonyme";
-    const finalScore = score;
-    
-    saveScore(name, finalScore);
-    elFeedback.textContent = `Score : ${finalScore}/${questions.length}`;
-    elFeedback.className = "feedback good";
-    elScore.textContent = `Score : ${finalScore}`;
-    elNext.classList.add("hidden");
-    
-    // ajouter un bouton pour voir le classement
-    const btnRank = document.createElement("button");
-    btnRank.className = "next";
-    btnRank.textContent = "Voir le classement";
+  if (index >= totalQuestions) {
+    // Fin de partie
+    saveScore(playerName, score);
+    elImage.removeAttribute('src');
+    elChoices.innerHTML = '';
+    elProgress.textContent = 'Terminé !';
+    elFeedback.textContent = `Score final : ${score}/${totalQuestions}`;
+    elFeedback.className = 'feedback good';
+    elNext.classList.add('hidden');
+
+    const btnRank = document.createElement('button');
+    btnRank.className = 'next';
+    btnRank.textContent = 'Voir le classement';
     btnRank.onclick = showRanking;
-    document.querySelector(".card").appendChild(btnRank);
+    document.querySelector('.card').appendChild(btnRank);
+
+    const btnRestart = document.createElement('button');
+    btnRestart.className = 'next';
+    btnRestart.style.background = '#2563eb';
+    btnRestart.textContent = 'Rejouer';
+    btnRestart.onclick = showNameScreen;
+    document.querySelector('.card').appendChild(btnRestart);
+    return;
   }
   render();
 });
 
-render();
-
-// ───── Sauvegarde du score avec pseudo ─────
-
-const highScoresKey = "image_quiz_scores";
-
-function loadScores() {
-  const json = localStorage.getItem(highScoresKey);
-  return json ? JSON.parse(json) : [];
-}
-
-function saveScore(name, score) {
-  const list = loadScores();
-  list.push({ name, score, date: new Date().toISOString() });
-  // tri par score décroissant, garder les 10 meilleurs
-  list.sort((a, b) => b.score - a.score);
-  const top10 = list.slice(0, 10);
-  localStorage.setItem(highScoresKey, JSON.stringify(top10));
-}
-
-function showScoreScreen(name, score) {
-  elText.textContent = `Bravo ${name} !`;
-  elImage.removeAttribute("src");
-  elChoices.innerHTML = "";
-  elFeedback.textContent = `Score : ${score}/${questions.length}.`;
-  elNext.classList.add("hidden");
-  elScore.textContent = `Score : ${score}`;
-
-  // bouton pour voir le classement
-  const btnRank = document.createElement("button");
-  btnRank.className = "next";
-  btnRank.textContent = "Voir le classement";
-  btnRank.onclick = showRanking;
-  document.querySelector(".card").appendChild(btnRank);
-}
-
-function showRanking() {
-  const list = loadScores();
-
-  elChoices.innerHTML = "";
-  elFeedback.textContent = "";
-
-  if (list.length === 0) {
-    elFeedback.textContent = "Aucun score enregistré.";
-    elFeedback.className = "feedback";
-    return;
-  }
-
-  const table = document.createElement("table");
-
-  const thead = document.createElement("thead");
-  thead.innerHTML = `
-    <tr>
-      <th>Pos</th>
-      <th>Prénom</th>
-      <th>Score</th>
-    </tr>
-  `;
-  table.appendChild(thead);
-
-  const tbody = document.createElement("tbody");
-  list.forEach((entry, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${i + 1}</td>
-      <td>${entry.name}</td>
-      <td>${entry.score}/${questions.length}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  table.appendChild(tbody);
-  elChoices.appendChild(table);
-}
-
-
+// ───── Lancement ─────
+showNameScreen();

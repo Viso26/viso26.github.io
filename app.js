@@ -21,21 +21,37 @@ const highScoresKey = 'image_quiz_scores';
 const totalQuestions = questions.length;
 
 // ───── Fonctions pour les scores ─────
+const firebaseConfig = {
+  // Colle ici TOUTE ta config copiée étape 1
+  apiKey: "AIzaSy...",
+  authDomain: "tonprojet.firebaseapp.com",
+  databaseURL: "https://tonprojet-default-rtdb.europe-west1.firebasedatabase.app/",
+  projectId: "tonprojet",
+  storageBucket: "tonprojet.appspot.com",
+  messagingSenderId: "123456",
+  appId: "1:123456:web:abcdef"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 function loadScores() {
-  try {
-    const json = localStorage.getItem(highScoresKey);
-    return json ? JSON.parse(json) : [];
-  } catch {
-    return [];
-  }
+  return db.ref('scores').orderByChild('score').limitToLast(10).once('value')
+    .then(snapshot => {
+      const scores = [];
+      snapshot.forEach(child => {
+        scores.unshift(child.val());
+      });
+      return scores;
+    }).catch(() => []);
 }
 
 function saveScore(name, score) {
-  const list = loadScores();
-  list.push({ name, score, date: new Date().toISOString() });
-  list.sort((a, b) => b.score - a.score);
-  const top10 = list.slice(0, 10);
-  localStorage.setItem(highScoresKey, JSON.stringify(top10));
+  db.ref('scores').push({
+    name: name,
+    score: score,
+    date: Date.now()
+  });
 }
 
 function showRanking() {

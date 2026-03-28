@@ -1,7 +1,7 @@
 const questions = [
-  { text: 'C’est un muffin ou un chien ?', image: 'https://images.unsplash.com/photo-1604908176997-125f25cc500f?auto=format&fit=crop&w=900&q=80', choices: ['Muffin','Chien'], answer: 'Muffin' },
+  { text: 'C’est un muffin ou un chien ?', image: 'https://images.unsplash.com/photo-1607958996333-41aef7caefaa?auto=format&fit=crop&w=900&q=80', choices: ['Muffin','Chien'], answer: 'Muffin' },
   { text: 'C’est une chambre du Crous ou une cellule ?', image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80', choices: ['Chambre du Crous','Cellule de prison'], answer: 'Chambre du Crous' },
-  { text: 'C’est un cookie ou un chat ?', image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=900&q=80', choices: ['Cookie','Chat'], answer: 'Chat' },
+  { text: 'C’est un cookie ou un chat ?', image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=900&q=80', choices: ['Cookie','Chat'], answer: 'Cookie' },
   { text: 'C’est une pizza ou un sac ?', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80', choices: ['Pizza','Sac'], answer: 'Pizza' }
 ];
 

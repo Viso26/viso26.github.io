@@ -73,3 +73,78 @@ elNext.addEventListener('click', () => {
 });
 
 render();
+
+// ───── Sauvegarde du score avec pseudo ─────
+
+const highScoresKey = "image_quiz_scores";
+
+function loadScores() {
+  const json = localStorage.getItem(highScoresKey);
+  return json ? JSON.parse(json) : [];
+}
+
+function saveScore(name, score) {
+  const list = loadScores();
+  list.push({ name, score, date: new Date().toISOString() });
+  // tri par score décroissant, garder les 10 meilleurs
+  list.sort((a, b) => b.score - a.score);
+  const top10 = list.slice(0, 10);
+  localStorage.setItem(highScoresKey, JSON.stringify(top10));
+}
+
+function showScoreScreen(name, score) {
+  elText.textContent = `Bravo ${name} !`;
+  elImage.removeAttribute("src");
+  elChoices.innerHTML = "";
+  elFeedback.textContent = `Score : ${score}/${questions.length}.`;
+  elNext.classList.add("hidden");
+  elScore.textContent = `Score : ${score}`;
+
+  // bouton pour voir le classement
+  const btnRank = document.createElement("button");
+  btnRank.className = "next";
+  btnRank.textContent = "Voir le classement";
+  btnRank.onclick = showRanking;
+  document.querySelector(".card").appendChild(btnRank);
+}
+
+function showRanking() {
+  const list = loadScores();
+
+  elChoices.innerHTML = "";
+  elFeedback.textContent = "";
+
+  if (list.length === 0) {
+    elFeedback.textContent = "Aucun score enregistré.";
+    elFeedback.className = "feedback";
+    return;
+  }
+
+  const table = document.createElement("table");
+
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th>Pos</th>
+      <th>Prénom</th>
+      <th>Score</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  list.forEach((entry, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${entry.name}</td>
+      <td>${entry.score}/${questions.length}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  elChoices.appendChild(table);
+}
+
+

@@ -164,7 +164,7 @@ elNext.addEventListener('click', () => {
   if (index >= totalQuestions) {
     // Fin de partie
     saveScore(playerName, score);
-    //elImage.removeAttribute('src');
+    elImage.removeAttribute('src');
     elChoices.innerHTML = '';
     elProgress.textContent = 'Terminé !';
     elFeedback.textContent = `Score final : ${score}/${totalQuestions}`;

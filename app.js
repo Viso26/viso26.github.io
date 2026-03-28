@@ -60,14 +60,27 @@ function pick(choice, btn) {
 elNext.addEventListener('click', () => {
   index++;
   if (index >= questions.length) {
-    elText.textContent = 'Partie terminée';
-    elImage.removeAttribute('src');
-    elChoices.innerHTML = '';
-    elProgress.textContent = 'Terminé';
-    elFeedback.textContent = `Score final : ${score}/${questions.length}`;
-    elFeedback.className = 'feedback good';
-    elNext.classList.add('hidden');
-    return;
+    index++; // ou après le dernier render
+    elText.textContent = "Fin de la partie";
+    elImage.removeAttribute("src");
+    elChoices.innerHTML = "";
+    
+    // demande un pseudo
+    const name = prompt("Ton prénom/pseudo :", "Sans nom") || "Anonyme";
+    const finalScore = score;
+    
+    saveScore(name, finalScore);
+    elFeedback.textContent = `Score : ${finalScore}/${questions.length}`;
+    elFeedback.className = "feedback good";
+    elScore.textContent = `Score : ${finalScore}`;
+    elNext.classList.add("hidden");
+    
+    // ajouter un bouton pour voir le classement
+    const btnRank = document.createElement("button");
+    btnRank.className = "next";
+    btnRank.textContent = "Voir le classement";
+    btnRank.onclick = showRanking;
+    document.querySelector(".card").appendChild(btnRank);
   }
   render();
 });
